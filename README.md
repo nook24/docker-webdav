@@ -1,3 +1,8 @@
+# Build image
+```
+docker build -t nook24/webdav:latest .
+```
+
 ## Supported tags
 
 * [`2.4`, `latest` (*2.4/Dockerfile*)](https://github.com/BytemarkHosting/docker-webdav/blob/master/2.4/Dockerfile)
