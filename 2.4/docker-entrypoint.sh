@@ -13,28 +13,29 @@ set -e
 
 # Just in case this environment variable has gone missing.
 HTTPD_PREFIX="${HTTPD_PREFIX:-/usr/local/apache2}"
+APACHE_ETC="${APACHE_ETC:-/etc/apache2}"
 
 # Configure vhosts.
 if [ "x$SERVER_NAMES" != "x" ]; then
     # Use first domain as Apache ServerName.
     SERVER_NAME="${SERVER_NAMES%%,*}"
     sed -e "s|ServerName .*|ServerName $SERVER_NAME|" \
-        -i "$HTTPD_PREFIX"/conf/sites-available/default*.conf
+        -i "$APACHE_ETC"/sites-available/default*.conf
 
     # Replace commas with spaces and set as Apache ServerAlias.
     SERVER_ALIAS="`printf '%s\n' "$SERVER_NAMES" | tr ',' ' '`"
     sed -e "/ServerName/a\ \ ServerAlias $SERVER_ALIAS" \
-        -i "$HTTPD_PREFIX"/conf/sites-available/default*.conf
+        -i "$APACHE_ETC"/sites-available/default*.conf
 fi
 
 # Configure dav.conf
 if [ "x$LOCATION" != "x" ]; then
     sed -e "s|Alias .*|Alias $LOCATION /var/lib/dav/data/|" \
-        -i "$HTTPD_PREFIX/conf/conf-available/dav.conf"
+        -i "$APACHE_ETC/conf-available/dav.conf"
 fi
 if [ "x$REALM" != "x" ]; then
     sed -e "s|AuthName .*|AuthName \"$REALM\"|" \
-        -i "$HTTPD_PREFIX/conf/conf-available/dav.conf"
+        -i "$APACHE_ETC/conf-available/dav.conf"
 else
     REALM="WebDAV"
 fi
@@ -45,7 +46,7 @@ if [ "x$AUTH_TYPE" != "x" ]; then
         exit 1
     fi
     sed -e "s|AuthType .*|AuthType $AUTH_TYPE|" \
-        -i "$HTTPD_PREFIX/conf/conf-available/dav.conf"
+        -i "$APACHE_ETC/conf-available/dav.conf"
 fi
 
 # Add password hash, unless "user.passwd" already exists (ie, bind mounted).
@@ -67,11 +68,11 @@ fi
 if [ "x$ANONYMOUS_METHODS" != "x" ]; then
     if [ "$ANONYMOUS_METHODS" = "ALL" ]; then
         sed -e "s/Require valid-user/Require all granted/" \
-            -i "$HTTPD_PREFIX/conf/conf-available/dav.conf"
+            -i "$APACHE_ETC/conf-available/dav.conf"
     else
         ANONYMOUS_METHODS="`printf '%s\n' "$ANONYMOUS_METHODS" | tr ',' ' '`"
         sed -e "/Require valid-user/a\ \ \ \ Require method $ANONYMOUS_METHODS" \
-            -i "$HTTPD_PREFIX/conf/conf-available/dav.conf"
+            -i "$APACHE_ETC/conf-available/dav.conf"
     fi
 fi
 
@@ -89,13 +90,10 @@ fi
 # has been bind mounted in by the user.
 if [ -e /privkey.pem ] && [ -e /cert.pem ]; then
     # Enable SSL Apache modules.
-    for i in http2 ssl; do
-        sed -e "/^#LoadModule ${i}_module.*/s/^#//" \
-            -i "$HTTPD_PREFIX/conf/httpd.conf"
-    done
+    a2enmod http2 ssl
     # Enable SSL vhost.
     ln -sf ../sites-available/default-ssl.conf \
-        "$HTTPD_PREFIX/conf/sites-enabled"
+        "$APACHE_ETC/sites-enabled"
 fi
 
 # Create directories for Dav data and lock database.
