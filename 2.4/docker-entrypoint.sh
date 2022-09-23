@@ -12,7 +12,6 @@ set -e
 #   SSL_CERT
 
 # Just in case this environment variable has gone missing.
-HTTPD_PREFIX="${HTTPD_PREFIX:-/usr/local/apache2}"
 APACHE_ETC="${APACHE_ETC:-/etc/apache2}"
 
 # Configure vhosts.
@@ -92,8 +91,7 @@ if [ -e /privkey.pem ] && [ -e /cert.pem ]; then
     # Enable SSL Apache modules.
     a2enmod http2 ssl
     # Enable SSL vhost.
-    ln -sf ../sites-available/default-ssl.conf \
-        "$APACHE_ETC/sites-enabled"
+    ln -sf "$APACHE_ETC/sites-available/default-ssl.conf" "$APACHE_ETC/sites-enabled"
 fi
 
 # Create directories for Dav data and lock database.
