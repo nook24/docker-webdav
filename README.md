@@ -1,3 +1,10 @@
+# Debian port
+Due to this https://gitlab.alpinelinux.org/alpine/aports/-/issues/13112
+I have ported this Docker Image over to Debian Bullseye
+
+The [alpine branch](https://github.com/nook24/docker-webdav/tree/alpine) contains the original alpine linux based version for future reference.
+Maybe we can backport this some day to Alpine Linux again.
+
 # Build image
 ```
 docker build -t nook24/webdav:latest .
