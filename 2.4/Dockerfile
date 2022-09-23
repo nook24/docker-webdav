@@ -12,7 +12,7 @@ RUN apt-get update && \
     apt-get clean
 
 # Create directories for Dav data and lock database.
-RUN a2enmod dav dav_fs dav_lock && \
+RUN a2enmod dav dav_fs dav_lock headers && \
     mkdir -p /var/lib/dav/data && \
     touch /var/lib/dav/DavLock && \
     chown -R www-data:www-data /var/lib/dav && \
@@ -26,10 +26,9 @@ RUN find /etc/apache2/sites-available -maxdepth 1 -type f -delete && \
 
 # Enable new apache configs
 RUN ln -s /etc/apache2/sites-available/default.conf /etc/apache2/sites-enabled/default.conf && \
-    ln -s /etc/apache2/conf-available/dav.conf /etc/apache2/conf-enabled/dav.conf && \
-
+    ln -s /etc/apache2/conf-available/dav.conf /etc/apache2/conf-enabled/dav.conf
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 EXPOSE 80/tcp 443/tcp
 ENTRYPOINT [ "docker-entrypoint.sh" ]
-CMD [ "apache2", "-DFOREGROUND" ]
+CMD [ "apache2ctl", "-D", "FOREGROUND"]

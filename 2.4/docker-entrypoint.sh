@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 # Environment variables that are used if not empty:
@@ -13,6 +13,8 @@ set -e
 
 # Just in case this environment variable has gone missing.
 APACHE_ETC="${APACHE_ETC:-/etc/apache2}"
+
+source /etc/apache2/envvars
 
 # Configure vhosts.
 if [ "x$SERVER_NAMES" != "x" ]; then
